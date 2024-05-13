@@ -9,8 +9,8 @@ db = SQLAlchemy(app)  # creates the db object using the configuration
 login = LoginManager(app)
 login.login_view = 'login'
 
-from forms import ContactForm, RegistrationForm, LoginForm
-from models import Contact
+from forms import ContactForm, LoginForm, RegistrationForm, ResetPasswordForm
+from models import Contact, User
 
 
 
@@ -69,6 +69,23 @@ def login():
             # Username or password incorrect
             return redirect(url_for("login"))
     return render_template("login.html", title="Login", form=form)
+
+@app.route('/logout',)
+def logout():
+    logout_user()
+    return redirect(url_for("homepage"))
+
+@app.route('/passwordreset', methods=['GET', 'POST'])
+@login_required
+def reset_password():
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email_address=current_user.email_address).first()
+        user.set_password(form.new_password.data)
+        db.session.commit()
+        flash("Your password has been changed.")
+        return redirect(url_for('homepage'))
+    return render_template("passwordreset.html", title='Reset Password', form=form, user=current_user)
 
 if __name__ == '__main__':
     app.run()
