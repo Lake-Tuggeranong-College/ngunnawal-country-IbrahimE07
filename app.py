@@ -9,7 +9,7 @@ db = SQLAlchemy(app)  # creates the db object using the configuration
 login = LoginManager(app)
 login.login_view = 'login'
 
-from forms import ContactForm
+from forms import ContactForm, RegistrationForm, LoginForm
 from models import Contact
 
 
@@ -42,7 +42,33 @@ def history():  # put application's code here
 def grid():  # put application's code here
     return render_template("grid.html", title="Bootstrap Grid")
 
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        new_user = User(email_address=form.email_address.data, name=form.name.data, user_level=1, active=True) # defaults to regular user
+        new_user.set_password(form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for("homepage"))
+    return render_template("registration.html", title="User Registration", form=form)
 
+@app.route('/login', methods=["POST", "GET"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email_address=form.email_address.data).first()
+        print(user)
+        if user is not None and user.check_password(form.password.data):
+            # User has been authenticated
+            login_user(user)
+            print("DEBUG: Login Successful")
+            return redirect(url_for("homepage"))
+        else:
+            print("DEBUG: Login Failed")
+            # Username or password incorrect
+            return redirect(url_for("login"))
+    return render_template("login.html", title="Login", form=form)
 
 if __name__ == '__main__':
     app.run()
