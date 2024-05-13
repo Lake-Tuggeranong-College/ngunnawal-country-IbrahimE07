@@ -9,14 +9,8 @@ db = SQLAlchemy(app)  # creates the db object using the configuration
 login = LoginManager(app)
 login.login_view = 'login'
 
-<<<<<<< HEAD
-# from forms import ContactForm, LoginForm, RegistrationForm, ResetPasswordForm, UserProfileForm
-from models import User, Contact
-
-=======
 from forms import ContactForm
 from models import Contact
->>>>>>> d5b247a (Database, Contact us page working)
 
 
 
@@ -34,10 +28,6 @@ def contact():
         # flash("Your message has been sent to administrators.")
         return redirect(url_for("homepage"))
     return render_template("contact.html", title="Contact Us", form=form, user=current_user)
-<<<<<<< HEAD
-
-=======
->>>>>>> d5b247a (Database, Contact us page working)
 
 @app.route('/gallery')
 def gallery():  # put application's code here
