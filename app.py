@@ -25,7 +25,7 @@ def contact():
         new_contact = Contact(name=form.name.data, email=form.email.data, message=form.message.data)
         db.session.add(new_contact)
         db.session.commit()
-        # flash("Your message has been sent to administrators.")
+        flash("Your message has been sent to administrators.")
         return redirect(url_for("homepage"))
     return render_template("contact.html", title="Contact Us", form=form, user=current_user)
 
@@ -50,6 +50,7 @@ def register():
         new_user.set_password(form.password.data)
         db.session.add(new_user)
         db.session.commit()
+        flash("Your account has been registered")
         return redirect(url_for("homepage"))
     return render_template("registration.html", title="User Registration", form=form)
 
@@ -60,19 +61,20 @@ def login():
         user = User.query.filter_by(email_address=form.email_address.data).first()
         print(user)
         if user is not None and user.check_password(form.password.data):
-            # User has been authenticated
+            flash("User has been authenticated")
             login_user(user)
             print("DEBUG: Login Successful")
             return redirect(url_for("homepage"))
         else:
             print("DEBUG: Login Failed")
-            # Username or password incorrect
+            flash("Username or password incorrect")
             return redirect(url_for("login"))
     return render_template("login.html", title="Login", form=form)
 
 @app.route('/logout',)
 def logout():
     logout_user()
+    flash("You are now logged out")
     return redirect(url_for("homepage"))
 
 @app.route('/passwordreset', methods=['GET', 'POST'])
