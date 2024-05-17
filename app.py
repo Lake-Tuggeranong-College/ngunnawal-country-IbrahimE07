@@ -89,5 +89,15 @@ def reset_password():
         return redirect(url_for('homepage'))
     return render_template("passwordreset.html", title='Reset Password', form=form, user=current_user)
 
+# Error Handlers
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html", user=current_user), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template("500.html", user=current_user), 500
+
 if __name__ == '__main__':
     app.run()
