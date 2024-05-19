@@ -16,7 +16,7 @@ from models import Contact, User
 
 @app.route('/')
 def homepage():  # put application's code here
-    return render_template("index.html", title="Homepage")
+    return render_template("index.html", title="Homepage", user=current_user)
 
 @app.route("/contact", methods=["POST", "GET"])
 def contact():
@@ -31,16 +31,16 @@ def contact():
 
 @app.route('/gallery')
 def gallery():  # put application's code here
-    return render_template("gallery.html", title="Photo Gallery")
+    return render_template("gallery.html", title="Photo Gallery", user=current_user)
 
 
 @app.route('/history')
 def history():  # put application's code here
-    return render_template("history.html", title="History of Ngunnawal")
+    return render_template("history.html", title="History of Ngunnawal", user=current_user)
 
 @app.route('/grid')
 def grid():  # put application's code here
-    return render_template("grid.html", title="Bootstrap Grid")
+    return render_template("grid.html", title="Bootstrap Grid", user=current_user)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -52,7 +52,7 @@ def register():
         db.session.commit()
         flash("Your account has been registered")
         return redirect(url_for("homepage"))
-    return render_template("registration.html", title="User Registration", form=form)
+    return render_template("registration.html", title="User Registration", form=form, user=current_user)
 
 @app.route('/login', methods=["POST", "GET"])
 def login():
@@ -69,7 +69,7 @@ def login():
             print("DEBUG: Login Failed")
             flash("Username or password incorrect")
             return redirect(url_for("login"))
-    return render_template("login.html", title="Login", form=form)
+    return render_template("login.html", title="Login", form=form, user=current_user)
 
 @app.route('/logout',)
 def logout():
