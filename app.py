@@ -46,7 +46,7 @@ def grid():  # put application's code here
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        new_user = User(email_address=form.email_address.data, name=form.name.data, user_level=1, active=True) # defaults to regular user
+        new_user = User(email_address=form.email_address.data, name=form.name.data, user_level=1, active=1) # defaults to regular user
         new_user.set_password(form.password.data)
         db.session.add(new_user)
         db.session.commit()
@@ -60,15 +60,19 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email_address=form.email_address.data).first()
         print(user)
-        if user is not None and user.check_password(form.password.data):
-            flash("User has been authenticated")
-            login_user(user)
-            print("DEBUG: Login Successful")
-            return redirect(url_for("homepage"))
-        else:
-            print("DEBUG: Login Failed")
+        if user is None or not user.check_password(form.password.data):
             flash("Username or password incorrect")
+            print("DEBUG: Login Failed")
             return redirect(url_for("login"))
+        if not user.active:
+            flash("Account not active. If necessary please contact administrators.") 
+            print("DEBUG: Login Failed")
+            return redirect(url_for("login"))
+        else:
+            print("DEBUG: Login Successful")
+            login_user(user)
+            flash("User has been authenticated")
+            return redirect(url_for("homepage"))
     return render_template("login.html", title="Login", form=form, user=current_user)
 
 @app.route('/logout',)
@@ -108,6 +112,43 @@ def view_contact_messages():
     else:
         return redirect(url_for("homepage"))
 
+@app.route('/admin/list_all_users')
+@login_required
+def list_all_users():
+    if current_user.is_admin():
+        all_users = User.query.all()
+        return render_template("listAllUsers.html", title="All Active Users", user=current_user, users=all_users)
+    else:
+        flash("You must be an administrator to access this functionality.")
+        return redirect(url_for("homepage"))
 
+@app.route('/reset_password/<userid>', methods=['GET', 'POST'])
+@login_required
+def reset_user_password(userid):
+    if current_user.is_admin():
+        form = ResetPasswordForm()
+        user = User.query.filter_by(id=userid).first()
+        if form.validate_on_submit():
+            user.set_password(form.new_password.data)
+            db.session.commit()
+            flash('Password has been reset for user {}'.format(user.name))
+            return redirect(url_for('homepage'))
+        return render_template("passwordreset.html", title='Reset Password', form=form, user=user)
+    else:
+        flash("You must be an administrator to access this functionality.")
+        return redirect(url_for("homepage"))
+    
+@app.route('/admin/user_enable/<userid>')
+@login_required
+def user_enable(userid):
+    if current_user.is_admin():
+        user = User.query.filter_by(id=userid).first()
+        user.active = not user.active
+        db.session.commit()
+        return redirect(url_for("list_all_users"))
+    else:
+        flash("You must be an administrator to access this functionality.")
+        return redirect(url_for("homepage"))
+    
 if __name__ == '__main__':
     app.run()

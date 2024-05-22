@@ -41,6 +41,7 @@ class User(UserMixin, db.Model):
     def update_details(self, email_address, name):
         self.email_address = email_address
         self.name = name
+        
 
 @login.user_loader
 def load_user(id):
