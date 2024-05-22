@@ -102,8 +102,12 @@ def internal_server_error(e):
 @app.route('/contact_messages')
 @login_required
 def view_contact_messages():
-    contact_messages = Contact.query.all()
-    return render_template("contactMessages.html", title="Contact Messages", user=current_user, messages=contact_messages)
+    if current_user.is_admin():
+        contact_messages = Contact.query.all()
+        return render_template("contactMessages.html", title="Contact Messages", user=current_user, messages=contact_messages)
+    else:
+        return redirect(url_for("homepage"))
+
 
 if __name__ == '__main__':
     app.run()
